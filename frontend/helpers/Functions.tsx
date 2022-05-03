@@ -24,16 +24,16 @@ import MovieTileObj from './MovieTileObj';
  *                          with this request having the request method, headers, mode
  *                          defined. Also sets the body set to the key "title"
  */
-export function requestHelper(bodyData: string): RequestInit {
+export function requestHelper(bodyData:string): RequestInit {
     console.log("requestHelper got:\n" + bodyData);
     return {
-        method: 'POST',
-        mode: 'no-cors',
+        method: "POST",
+        mode: "no-cors",
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
+            "Accept": "application/json"
         },
-        body: bodyData
+        body: JSON.stringify({"title": bodyData}),
     };
 }
 
@@ -52,8 +52,8 @@ export function createRequest(request: PostRequest): RequestInit {
         method: request.method,
         mode: request.mode,
         headers: {
-            'Accept': request.headers.accept,
-            'Content-Type': request.headers.contentType
+            "Content-Type": "application/json",
+            "Accept": "application/json"
         },
         body: JSON.stringify({"title": request.body})
     }
@@ -75,8 +75,8 @@ export function createRequestBody(keyString: string, valueString: string): Reque
         method: 'POST',
         mode: 'no-cors',
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
+            "Accept": "application/json"
         },
         body: JSON.stringify({"Genre": valueString}),
     }
@@ -162,7 +162,7 @@ export function SimulateSearch() : Movie[] {
     var amount = getRandomNumber(1, 5);
     var movies: Movie[] = [];
     for (let i = 0; i < amount; i++) {
-        movies.push(new MovieTileObj());
+        movies.push({} as Movie);
         
     }
     return movies;

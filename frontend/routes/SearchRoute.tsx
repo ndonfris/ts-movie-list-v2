@@ -7,11 +7,14 @@ import React, {useState} from 'react';
 import {Keyboard, View, StyleSheet} from 'react-native';
 import SearchBar from '../components/SearchBar';
 import MovieList from '../components/MovieList';
+import axios, {AxiosRequestConfig} from 'axios';
 import {createRequest, HitSearchKey, requestHelper, setFirstMovieResults, SimulateSearch} from '../helpers/Functions';
 import {Movie, reqBody} from '../helpers/Interfaces';
 import serverURL from '../helpers/URL';
 import Movies from '../assets/Top250MoviesShort.json';
 import colors from '../helpers/Colors';
+import { apiKeys } from '../helpers/apiKeys';
+import { apiUrls } from '../helpers/apiKeys';
 
 /*
  * Creates the SearchRoute page. Imports the static file Top250Movies.json, which 
@@ -26,16 +29,13 @@ export default function SearchRoute() {
     /* the list of movies currently rendered on screen as results */
     const [movieResults, setMovieResults] = useState<Movie[]>(setFirstMovieResults(Movies));
 
-    const handleSearch = async () : Promise<Movie[]> => {
+    const handleSearch = async (newQuery: string) : Promise<string> => {
         Keyboard.dismiss();
-        let strippedQuery = query.trim();
+        let strippedQuery = newQuery.trim();
         if (strippedQuery == "") {
             return;
         }
-        HitSearchKey();
-        SimulateSearch();
-        searchQuery(strippedQuery);
-        return movieResults;
+        return strippedQuery;
     }
 
     /**
@@ -44,18 +44,43 @@ export default function SearchRoute() {
      * @throws {Error} - Typically thrown if server is not connected/running
      * @returns {Promise<void>} - Array of Movies, found from query
      */
-    const searchQuery = async (strippedQuery: string) => {
-        let bodyData: reqBody<string> = { "title": strippedQuery };
-        let reqData = requestHelper(JSON.stringify(bodyData));
+    const searchQuery = async () : Promise<Movie[]> => {
+        Keyboard.dismiss();
+        if (query === "") {
+            return;
+        }
+        let reqData = requestHelper(query);
         try {
-            const response = await fetch(serverURL+"/search/title", reqData);
-            const body = await response.json();
-            console.log(body.Search);
-            setMovieResults(body.Search);
+            const search_name = query.trim();
+            const firstPage = {
+                method: "GET",
+                url:  apiUrls.searchMovie,
+                params: { s: search_name, page: "1", r: "json" },
+                headers: apiKeys.searchMovie,
+            };
+            const secondPage = {
+                method: "GET",
+                url: apiUrls.searchMovie,
+                params: { s: search_name, page: "2", r: "json" },
+                headers: apiKeys.searchMovie,
+            };
+            const result = await axios.request(firstPage as AxiosRequestConfig);
+            if (result.data["totalResults"] > 11) {
+                const more = await axios.request(secondPage as AxiosRequestConfig);
+                let moreArr: Movie[] = more.data["Search"];
+                for (var i in moreArr) {
+                    let secondPageMovie: Movie = moreArr[i];
+                    result.data["Search"].push(secondPageMovie);
+                }
+            }
+            setMovieResults(result.data['Search']);
+            console.log(result.data['Search']);
         } catch (e) {
             console.log(e);
             throw new Error(e);
-        }
+        } finally {
+            console.log(reqData)
+        } 
     };
 
     return (
@@ -65,7 +90,7 @@ export default function SearchRoute() {
                 query={query}
                 updateQuery={text => setQuery(text)} 
                 searchFunction={() => {
-                    handleSearch();
+                    searchQuery();
                 }}
             />
             <View style={styles.results}>

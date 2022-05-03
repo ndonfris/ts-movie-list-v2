@@ -12,6 +12,7 @@ import serverURL from '../helpers/URL';
 import Movies from '../assets/Top250MoviesShort.json';
 import DropDownPicker from 'react-native-dropdown-picker';
 import colors from '../helpers/Colors';
+import axios, {AxiosRequestConfig} from 'axios';
 
 /*
  * Creates a SearchRoute page. Imports the static file Top250Moives.json, which
@@ -70,10 +71,19 @@ export default function BrowseRoute() {
         let bodyData: reqBody<string> = {
             "Genre": value
         }
-        let reqData = requestHelper(JSON.stringify(bodyData));
+        let config: AxiosRequestConfig = {
+            url: serverURL + '/browse/genre',
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            data: bodyData
+        };
         try {
-            const response = await fetch(serverURL+"/browse/genre", reqData);
-            const body = await response.json();
+            const response = await axios.request(config);
+            const body = await response.data;
+            console.log(body);
             setMovieResults(body);
             return body;
         } catch (e) {

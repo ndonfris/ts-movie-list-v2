@@ -11,7 +11,7 @@ import serverURL from '../helpers/URL';
 import Popup from './Popup';
 import LoadingImage from './LoadingImage';
 import MovieImage from './MovieImage';
-//import colors from '../helpers/Colors';
+import colors from '../helpers/Colors';
 
 
 
@@ -43,10 +43,7 @@ const MovieTile = ({movie, shouldShowLoading}: Props) => {
      *                            and makes use of global variables.
      */
     const ShowMoreInfo = async () : Promise<void> => {
-        const bodyData: reqBody<string> = {
-            "title": movie.imdbID
-        };
-        const reqData = requestHelper(JSON.stringify(bodyData));
+        const reqData = requestHelper(movie.imdbID);
         console.log(reqData);
         if (reqData == {}) {
             console.log("reqData empty");

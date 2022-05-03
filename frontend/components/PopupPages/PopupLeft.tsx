@@ -6,7 +6,7 @@
 import React, {useState} from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image, FlatList, ListRenderItem, Linking} from "react-native";
 import { MovieMoreInfo, reqBody, StreamWebsite } from '../../helpers/Interfaces';
-import { noStreamingSites, requestHelper } from '../../helpers/Functions';
+import { createRequest, noStreamingSites, requestHelper } from '../../helpers/Functions';
 import { Ionicons } from '@expo/vector-icons';
 import serverURL from '../../helpers/URL';
 import colors from '../../helpers/Colors';
@@ -102,10 +102,7 @@ const PopupLeft = ({moreInfo}: Props) => {
      *                            for the availabieSites array.
      */
     const ShowAvailableSites = async () : Promise<void> => {
-        const bodyData: reqBody<string> = {
-            "title": moreInfo.imdbID
-        };
-        let reqData = requestHelper(JSON.stringify(bodyData));
+        let reqData = requestHelper(moreInfo.imdbID);
         console.log(reqData);
         try {
             const response = await fetch(serverURL + '/movie/streaming', reqData);

@@ -35,8 +35,7 @@ const RemoveTile = ({movie}: Props) => {
         if (movie.imdbID === "" || movie.imdbID === undefined || movie.imdbID === null) {
             return Promise.resolve();
         }
-        let bodyData : reqBody<string> = { "title": movie.imdbID };
-        let reqData = requestHelper(JSON.stringify(bodyData));
+        let reqData = requestHelper(movie.imdbID);
         try {
             const response = await fetch(serverURL + '/watch_list/remove', reqData);
             const obj = await response.json();
